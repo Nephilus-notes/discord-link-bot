@@ -51,9 +51,9 @@ async def on_message(message):
             return
         
         link = re.search(pattern, message.content).group()
-        https_follow_up = re.search(r'(?<=https:\/\/)[a-zA-Z0-9]{2,}', message.content)
-        print(type(https_follow_up))
-        print(https_follow_up)
+        https_follow_up = re.search(r'(?<=https:\/\/)[a-zA-Z0-9]{2,}', message.content).group()
+        # print(type(https_follow_up))
+        # print(https_follow_up)
         name = ''
         match https_follow_up:
             case 'docs':
@@ -76,7 +76,7 @@ async def on_message(message):
 
 
         # print('link detected')
-        await channel_target.send(f'Name: {name}\n{link}')
+        await channel_target.send(f'Website: {name}\n{link}')
 
 
     if message.content == 'hello':

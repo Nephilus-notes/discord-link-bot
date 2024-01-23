@@ -76,7 +76,7 @@ async def find_new_links(guild):
                     continue
                 else:
                     if ' ' in link:
-                        continue
+                        # continue
                         multi_link_split(link, new_links)
                     else:
                         new_links.add(link_message_builder(message))
@@ -97,24 +97,14 @@ async def find_new_links(guild):
 def set_target_channel(guild, channel):
     return discord.utils.get(guild.channels, name=channel)
 
-def link_message_builder(message):
-    link = re.search(LINK_PATTERN, message.content).group()
-    https_follow_up = re.search(r'(?<=https:\/\/)[a-zA-Z0-9]{2,}', message.content).group()
-    # grab the first part of the url so the switch can determine where to grab the name from
+def link_message_builder(message, string_boolean=False):
+    if string_boolean:
+        return f'Website: {site_name_extractor(message)} \n {message}'
+    else:
+        link = re.search(LINK_PATTERN, message.content).group()
+        name = site_name_extractor(link)
 
-    name = ''
-    match https_follow_up:
-        case 'docs':
-            # print('docs detected')
-            name = re.search(r'(?<=docs.)[a-zA-Z0-9]{2,}', message.content).group()
-        case 'www':
-            # print('www detected')
-            name = re.search(r'(?<=www.)[a-zA-Z0-9]{2,}', message.content).group()
-        case _:
-            # print('nothing specific detected')
-            name = re.search(r'(?<=https://)[a-zA-Z0-9]{2,}', message.content).group() # https regex
-
-    return f'Website: {name.title()} \n {link}'
+        return f'Website: {name.title()} \n {link}'
 
 
 async def delete_awkward_links(guild, channel):
@@ -143,6 +133,24 @@ def multi_link_split(link, new_links_set):
     if ' ' in link:
         multiple_links = link.split(' ')
         for link in multiple_links:
-            new_links_set.add(link_message_builder(link))
+            new_links_set.add(link_message_builder(link, True))
+
+def site_name_extractor(link):
+    https_follow_up = re.search(r'(?<=https:\/\/)[a-zA-Z0-9]{2,}', link).group()
+    # grab the first part of the url so the switch can determine where to grab the name from
+
+    name = ''
+    match https_follow_up:
+        case 'docs':
+            # print('docs detected')
+            name = re.search(r'(?<=docs.)[a-zA-Z0-9]{2,}', link).group()
+        case 'www':
+            # print('www detected')
+            name = re.search(r'(?<=www.)[a-zA-Z0-9]{2,}', link).group()
+        case _:
+            # print('nothing specific detected')
+            name = re.search(r'(?<=https://)[a-zA-Z0-9]{2,}', link).group() # https regex
+                
+    return name.title()
 
 client.run(TOKEN)

@@ -41,11 +41,22 @@ async def on_message(message):
         
 
     if re.search(LINK_PATTERN, message.content):
+        # institute a findall method to grab all links in a message
+        # then iterate through the list and send each one individually
+        # await message.channel.send(link_message_builder(message))
         target_channel = set_target_channel(message.guild, CHANNEL)
 
         if target_channel == message.channel:
             # if the message is in the channel we want to post to, ignore it
             return
+  
+        async for post in target_channel.history(limit=200):
+            if link_message_builder(message) in post.content:
+
+                print('link already posted')
+                return
+            else:
+                print(post)
         
         await target_channel.send(link_message_builder(message))
 
@@ -63,7 +74,15 @@ async def find_new_links(guild):
 
     async for message in target_channel.history(limit=200):
         if re.search(LINK_PATTERN, message.content):
-            links_in_correct_channel.add(re.search(LINK_PATTERN, message.content).group())
+
+            uncleaned_link = re.search(LINK_PATTERN, message.content).group()
+            # print(uncleaned_link)
+            if whitespace_check(uncleaned_link):
+                multi_link_split(uncleaned_link, new_links, links_in_correct_channel, False)
+            else:
+                links_in_correct_channel.add(uncleaned_link)
+
+    # print(links_in_correct_channel)
 
     for channel in unchecked_channels:
         async for message in channel.history(limit=200):
@@ -72,7 +91,7 @@ async def find_new_links(guild):
                 if link in links_in_correct_channel or link in new_links:
                     continue
                 else:
-                    if ' ' in link:
+                    if whitespace_check(link):
                         multi_link_split(link, new_links, links_in_correct_channel)
                     else:
                         new_links.add(link_message_builder(message))
@@ -113,12 +132,15 @@ def link_pattern_match(message):
     else:
         return False
     
-def multi_link_split(link, new_links_set, links_in_correct_channel):
-    if ' ' in link:
+def multi_link_split(link, new_links_set, links_in_correct_channel, push_boolean=True):
+    if whitespace_check(link):
         multiple_links = link.split(' ')
         for link in multiple_links:
             if link not in links_in_correct_channel:
-                new_links_set.add(link_message_builder(link, True))
+                if push_boolean:
+                    new_links_set.add(link_message_builder(link, True))
+                else:
+                    links_in_correct_channel.add(link)
 
 def site_name_extractor(link):
     https_follow_up = re.search(r'(?<=https:\/\/)[a-zA-Z0-9]{2,}', link).group()
@@ -137,5 +159,11 @@ def site_name_extractor(link):
             name = re.search(r'(?<=https://)[a-zA-Z0-9]{2,}', link).group() # https regex
                 
     return name.title()
+
+def whitespace_check(link):
+    if ' ' in link:
+        return False
+    else:
+        return True
 
 client.run(TOKEN)

@@ -75,8 +75,11 @@ async def find_new_links(guild):
                     # print(f'link already in channel: {link}')
                     continue
                 else:
-                    # print(f'new link found: {re.search(LINK_PATTERN, message.content).group()}')
-                    new_links.add(link_message_builder(message))
+                    if ' ' in link:
+                        continue
+                        multi_link_split(link, new_links)
+                    else:
+                        new_links.add(link_message_builder(message))
 
     
     # print('links in channel: ')
@@ -135,5 +138,11 @@ def link_pattern_match(message):
         return True
     else:
         return False
+    
+def multi_link_split(link, new_links_set):
+    if ' ' in link:
+        multiple_links = link.split(' ')
+        for link in multiple_links:
+            new_links_set.add(link_message_builder(link))
 
 client.run(TOKEN)

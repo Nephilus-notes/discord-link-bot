@@ -9,7 +9,7 @@ TOKEN = os.getenv('DISCORD_TOKEN')
 GUILD = os.getenv('DISCORD_GUILD')
 CHANNEL = os.getenv('DISCORD_CHANNEL')
 
-pattern = r'(https:\/\/www\.|http:\/\/www\.|https:\/\/|http:\/\/)?[a-zA-Z0-9]{2,}(\.[a-zA-Z0-9]{2,})(\.[a-zA-Z0-9]{2,})?(\/.*){0,}'
+LINK_PATTERN = r'(https:\/\/www\.|http:\/\/www\.|https:\/\/|http:\/\/)?[a-zA-Z0-9]{2,}(\.[a-zA-Z0-9]{2,})(\.[a-zA-Z0-9]{2,})?(\/.*){0,}'
 
 
 
@@ -32,9 +32,8 @@ async def on_message(message):
     if message.author == client.user:
         return
         
-    # pattern = r'(https:\/\/www\.|http:\/\/www\.|https:\/\/|http:\/\/)?[a-zA-Z0-9]{2,}(\.[a-zA-Z0-9]{2,})(\.[a-zA-Z0-9]{2,})?(\/.*){0,}'
-    # pattern to match a full url 
-    if re.search(pattern, message.content):
+
+    if re.search(LINK_PATTERN, message.content):
         target_channel = set_target_channel(message.guild, CHANNEL)
 
         if target_channel == message.channel:
@@ -56,13 +55,13 @@ async def find_new_links(guild):
     links_in_correct_channel = []
 
     async for message in target_channel.history(limit=200):
-        if re.search(pattern, message.content):
-            all_links.append(re.search(pattern, message.content).group())
+        if re.search(LINK_PATTERN, message.content):
+            all_links.append(re.search(LINK_PATTERN, message.content).group())
 
     for channel in unchecked_channels:
         async for message in channel.history(limit=200):
-            if re.search(pattern, message.content) and re.search(pattern, message.content).group() not in all_links:
-                link = re.search(pattern, message.content).group()
+            if re.search(LINK_PATTERN, message.content) and re.search(LINK_PATTERN, message.content).group() not in all_links:
+                link = re.search(LINK_PATTERN, message.content).group()
                 https_follow_up = re.search(r'(?<=https:\/\/)[a-zA-Z0-9]{2,}', message.content).group()
                 # grab the first part of the url so the switch can determine where to grab the name from
         
@@ -85,7 +84,7 @@ def set_target_channel(guild, channel):
     return discord.utils.get(guild.channels, name=channel)
 
 def link_message_builder(message):
-    link = re.search(pattern, message.content).group()
+    link = re.search(LINK_PATTERN, message.content).group()
     https_follow_up = re.search(r'(?<=https:\/\/)[a-zA-Z0-9]{2,}', message.content).group()
     # grab the first part of the url so the switch can determine where to grab the name from
 

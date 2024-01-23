@@ -143,7 +143,14 @@ def multi_link_split(link, new_links_set, links_in_correct_channel, push_boolean
                     links_in_correct_channel.add(link)
 
 def site_name_extractor(link):
-    https_follow_up = re.search(r'(?<=https:\/\/)[a-zA-Z0-9]{2,}', link).group()
+
+    https_follow_up = re.search(r'(?<=https:\/\/)[a-zA-Z0-9]{2,}', link)
+    # print(https_follow_up)
+    if https_follow_up:
+        https_follow_up = https_follow_up.group()
+    else:
+        return 'No name found'
+    #     https_follow_up = re.search(r'(?<=http:\/\/)[a-zA-Z0-9]{2,}', link).group()
     # grab the first part of the url so the switch can determine where to grab the name from
 
     name = ''

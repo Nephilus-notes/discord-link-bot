@@ -27,6 +27,9 @@ async def on_ready():
     # await delete_awkward_links(guild, CHANNEL)
 
     await find_new_links(guild)
+    # target = set_target_channel(guild, CHANNEL)
+    # print(target)
+    # await print(target.history(limit=200))
 
 
 
@@ -70,7 +73,7 @@ async def find_new_links(guild):
                     continue
                 else:
                     if ' ' in link:
-                        multi_link_split(link, new_links)
+                        multi_link_split(link, new_links, links_in_correct_channel)
                     else:
                         new_links.add(link_message_builder(message))
 
@@ -110,11 +113,12 @@ def link_pattern_match(message):
     else:
         return False
     
-def multi_link_split(link, new_links_set):
+def multi_link_split(link, new_links_set, links_in_correct_channel):
     if ' ' in link:
         multiple_links = link.split(' ')
         for link in multiple_links:
-            new_links_set.add(link_message_builder(link, True))
+            if link not in links_in_correct_channel:
+                new_links_set.add(link_message_builder(link, True))
 
 def site_name_extractor(link):
     https_follow_up = re.search(r'(?<=https:\/\/)[a-zA-Z0-9]{2,}', link).group()

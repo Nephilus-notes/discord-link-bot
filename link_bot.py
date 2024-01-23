@@ -24,6 +24,8 @@ async def on_ready():
     
     print(f'{client.user} has connected to the {guild.name} Discord server!')
 
+    # await delete_awkward_links(guild, CHANNEL)
+
     await find_new_links(guild)
 
 
@@ -53,27 +55,40 @@ async def find_new_links(guild):
     target_channel = discord.utils.get(guild.channels, name=CHANNEL)
 
     unchecked_channels = [guild for guild in guild.text_channels if guild != target_channel]
-    new_links = []
-    links_in_correct_channel = []
+    new_links = set()
+    links_in_correct_channel = set()
 
     async for message in target_channel.history(limit=200):
         if re.search(LINK_PATTERN, message.content):
-            links_in_correct_channel.append(re.search(LINK_PATTERN, message.content).group())
-    if links_in_correct_channel:
-        print(f'got all links in {target_channel}')
+            # print(f'link found in channel: {re.search(LINK_PATTERN, message.content).group()}')
+            links_in_correct_channel.add(re.search(LINK_PATTERN, message.content).group())
+    # if links_in_correct_channel:
+    #     print(f'got all links in {links_in_correct_channel}')
 
 
     for channel in unchecked_channels:
-        print(f'checking {channel}')
+        # print(f'checking {channel}')
         async for message in channel.history(limit=200):
-            if re.search(LINK_PATTERN, message.content) and re.search(LINK_PATTERN, message.content).group() not in links_in_correct_channel:
-                print(f'new link found: {re.search(LINK_PATTERN, message.content).group()}')
-                new_links.append(link_message_builder(message))
+            if re.search(LINK_PATTERN, message.content):
+                link = re.search(LINK_PATTERN, message.content).group()
+                if link in links_in_correct_channel or link in new_links:
+                    # print(f'link already in channel: {link}')
+                    continue
+                else:
+                    # print(f'new link found: {re.search(LINK_PATTERN, message.content).group()}')
+                    new_links.add(link_message_builder(message))
 
     
-    # if new_links:
-    #     print(f'new links found: {new_links}')
-    #     await target_channel.send(new_links)
+    # print('links in channel: ')
+    # for link in links_in_correct_channel:
+    #     print(link)
+    if new_links:
+
+        # print(links_in_correct_channel, new_links)
+        # print(f'new links found: {new_links}\n')
+        for link in new_links:
+            await target_channel.send(link)
+        # await target_channel.send(new_links)
 
 
 def set_target_channel(guild, channel):
@@ -87,15 +102,38 @@ def link_message_builder(message):
     name = ''
     match https_follow_up:
         case 'docs':
-            print('docs detected')
+            # print('docs detected')
             name = re.search(r'(?<=docs.)[a-zA-Z0-9]{2,}', message.content).group()
         case 'www':
-            print('www detected')
+            # print('www detected')
             name = re.search(r'(?<=www.)[a-zA-Z0-9]{2,}', message.content).group()
         case _:
-            print('nothing specific detected')
+            # print('nothing specific detected')
             name = re.search(r'(?<=https://)[a-zA-Z0-9]{2,}', message.content).group() # https regex
 
-    return f'Website: {name.title()}\n{link}'
+    return f'Website: {name.title()} \n {link}'
+
+
+async def delete_awkward_links(guild, channel):
+    target_channel = set_target_channel(guild, channel)
+    async for message in target_channel.history(limit=200):
+        if link_pattern_match(message):
+            regex_match = re.search(LINK_PATTERN, message.content).group()
+            # whitespace_check = re.search(r'(?<=https:\/\/)[a-zA-Z0-9]{2,}', message.content).group()
+            if ' ' in regex_match:
+                # print('whitespace detected')
+                # print(regex_match)
+                await message.delete()
+            if type(regex_match) == str:
+                continue
+            elif type (regex_match) == list:
+                print("it's a list")
+            # print(f'link found in channel: {re.search(LINK_PATTERN, message.content).group()}')
+
+def link_pattern_match(message):
+    if re.search(LINK_PATTERN, message.content):
+        return True
+    else:
+        return False
 
 client.run(TOKEN)

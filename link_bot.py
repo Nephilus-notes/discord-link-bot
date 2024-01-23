@@ -38,12 +38,8 @@ async def on_message(message):
 
     if message.author == client.user:
         return
-    
-    # print(f'messenger not bot. message: {message}')
-    
-    # pattern = r'(https:\/\/www\.|http:\/\/www\.|https:\/\/|http:\/\/)?[a-zA-Z0-9]{2,}(\.[a-zA-Z0-9]{2,})(\.[a-zA-Z0-9]{2,})?'
+        
     pattern = r'(https:\/\/www\.|http:\/\/www\.|https:\/\/|http:\/\/)?[a-zA-Z0-9]{2,}(\.[a-zA-Z0-9]{2,})(\.[a-zA-Z0-9]{2,})?(\/.*){0,}'
-    # print(pattern)
 
     if re.search(pattern, message.content):
         channel_target = discord.utils.get(message.guild.channels, name=CHANNEL)
@@ -52,8 +48,7 @@ async def on_message(message):
         
         link = re.search(pattern, message.content).group()
         https_follow_up = re.search(r'(?<=https:\/\/)[a-zA-Z0-9]{2,}', message.content).group()
-        # print(type(https_follow_up))
-        # print(https_follow_up)
+  
         name = ''
         match https_follow_up:
             case 'docs':
@@ -67,15 +62,6 @@ async def on_message(message):
                 name = re.search(r'(?<=https://)[a-zA-Z0-9]{2,}', message.content).group() # https regex
 
 
-        # if not name:
-        #     name = re.search(r'(?<=https://)[a-zA-Z0-9]{2,}', message.content).group() # https regex
-        #     if name == 'docs':
-        #         name = re.search(r'(?<=docs.)[a-zA-Z0-9]{2,}', message.content).group()
-        # if not name or name in ['docs', 'www', 'http']:
-        #     name = "bot name regex failed"
-
-
-        # print('link detected')
         await channel_target.send(f'Website: {name.title()}\n{link}')
 
 

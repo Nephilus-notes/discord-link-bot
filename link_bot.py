@@ -25,8 +25,8 @@ async def on_ready():
     )
     print(f'{client.user} has connected to Discord!')
 
-    channels = '\n - '.join([channel.name for channel in guild.text_channels])
-    print(f'Guild Channels: \n - {channels}')
+    # channels = '\n - '.join([channel.name for channel in guild.text_channels])
+    # print(f'Guild Channels: \n - {channels}')
 
     # pattern = r'(https:\/\/www\.|http:\/\/www\.|https:\/\/|http:\/\/)?[a-zA-Z0-9]{2,}(\.[a-zA-Z0-9]{2,})(\.[a-zA-Z0-9]{2,})?'
     # print(pattern)
@@ -41,7 +41,8 @@ async def on_message(message):
     
     # print(f'messenger not bot. message: {message}')
     
-    pattern = r'(https:\/\/www\.|http:\/\/www\.|https:\/\/|http:\/\/)?[a-zA-Z0-9]{2,}(\.[a-zA-Z0-9]{2,})(\.[a-zA-Z0-9]{2,})?'
+    # pattern = r'(https:\/\/www\.|http:\/\/www\.|https:\/\/|http:\/\/)?[a-zA-Z0-9]{2,}(\.[a-zA-Z0-9]{2,})(\.[a-zA-Z0-9]{2,})?'
+    pattern = r'(https:\/\/www\.|http:\/\/www\.|https:\/\/|http:\/\/)?[a-zA-Z0-9]{2,}(\.[a-zA-Z0-9]{2,})(\.[a-zA-Z0-9]{2,})?(\/.*){0,}'
     # print(pattern)
 
     if re.search(pattern, message.content):
@@ -50,17 +51,30 @@ async def on_message(message):
             return
         
         link = re.search(pattern, message.content).group()
-        name = re.search(r'(?<=www.)[a-zA-Z0-9]{2,}', message.content).group() # www regex
-        if not name:
-            name = re.search(r'(?<=https://)[a-zA-Z0-9]{2,}', message.content).group() # https regex
-            if name == 'docs':
+        https_follow_up = re.search(r'(?<=https:\/\/)[a-zA-Z0-9]{2,}', message.content)
+        name = ''
+        match https_follow_up:
+            case 'docs':
+                print('docs detected')
                 name = re.search(r'(?<=docs.)[a-zA-Z0-9]{2,}', message.content).group()
-        if not name or name in ['docs', 'www', 'http']:
-            name = "bot name regex failed"
+            case 'www':
+                print('www detected')
+                name = re.search(r'(?<=www.)[a-zA-Z0-9]{2,}', message.content).group()
+            case _:
+                print('nothing specific detected')
+                name = re.search(r'(?<=https://)[a-zA-Z0-9]{2,}', message.content).group() # https regex
 
 
-        print('link detected')
-        await channel_target.send(f'name {name}\n{link}')
+        # if not name:
+        #     name = re.search(r'(?<=https://)[a-zA-Z0-9]{2,}', message.content).group() # https regex
+        #     if name == 'docs':
+        #         name = re.search(r'(?<=docs.)[a-zA-Z0-9]{2,}', message.content).group()
+        # if not name or name in ['docs', 'www', 'http']:
+        #     name = "bot name regex failed"
+
+
+        # print('link detected')
+        await channel_target.send(f'Name: {name}\n{link}')
 
 
     if message.content == 'hello':

@@ -72,18 +72,20 @@ async def find_new_links(guild):
     new_links = set()
     links_in_correct_channel = set()
 
+    # getting all the links in the target channel
     async for message in target_channel.history(limit=200):
         if re.search(LINK_PATTERN, message.content):
 
+            # attempting to split the message into a list of links if necessary
             uncleaned_link = re.search(LINK_PATTERN, message.content).group()
-            # print(uncleaned_link)
+                #  adding the link to the set of links or splitting it into multiple links theoretically
             if whitespace_check(uncleaned_link):
                 multi_link_split(uncleaned_link, new_links, links_in_correct_channel, False)
             else:
                 links_in_correct_channel.add(uncleaned_link)
 
-    # print(links_in_correct_channel)
-
+    # getting all the links in the other channels and checking it against the
+    # links in the target channel before adding them to the new_links set
     for channel in unchecked_channels:
         async for message in channel.history(limit=200):
             if re.search(LINK_PATTERN, message.content):
@@ -95,7 +97,8 @@ async def find_new_links(guild):
                         multi_link_split(link, new_links, links_in_correct_channel)
                     else:
                         new_links.add(link_message_builder(message))
-
+                        
+    # sending the new links to the target channel
     if new_links:
         for link in new_links:
             await target_channel.send(link)

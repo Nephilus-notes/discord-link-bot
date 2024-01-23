@@ -10,28 +10,28 @@ GUILD = os.getenv('DISCORD_GUILD')
 
 intents = discord.Intents.default()
 
-# client = discord.Client(intents=intents)
+client = discord.Client(intents=intents)
 
-class LinkBotClient(discord.Client):
-    async def on_ready(self):
-        print(f'{self.user} has connected to Discord!')
-
-    async def on_message(self, message):
-        if message.author == self.user:
-            return
-
-        if message.content == 'hello':
-            await message.channel.send('Hello!')
-
-
-# @client.event
-# async def on_ready():
-#     guild = discord.utils.get(client.guilds, name=GUILD)
+@client.event
+async def on_ready():
+    guild = discord.utils.get(client.guilds, name=GUILD)
     
-#     print(
-#         f'{client.user} is connected to the following guild: \n'
-#         f'{guild.name} (id: {guild.id})'
-#     )
-    # print(f'{client.user} has connected to Discord!')
-client = LinkBotClient(intents=intents)
+    print(
+        f'{client.user} is connected to the following guild: \n'
+        f'{guild.name} (id: {guild.id})'
+    )
+    print(f'{client.user} has connected to Discord!')
+
+    channels = '\n - '.join([channel.name for channel in guild.channels])
+    print(f'Guild Channels: \n - {channels}')
+
+
+@client.event
+async def on_message(message):
+    if message.author == client.user:
+        return
+
+    if message.content == 'hello':
+        await message.channel.send('hello')
+
 client.run(TOKEN)

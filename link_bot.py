@@ -76,7 +76,7 @@ async def on_message(message):
 
 
         # print('link detected')
-        await channel_target.send(f'Website: {name}\n{link}')
+        await channel_target.send(f'Website: {name.title()}\n{link}')
 
 
     if message.content == 'hello':

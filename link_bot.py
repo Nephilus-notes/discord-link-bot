@@ -27,9 +27,7 @@ async def on_ready():
     # await delete_awkward_links(guild, CHANNEL)
 
     await find_new_links(guild)
-    # target = set_target_channel(guild, CHANNEL)
-    # print(target)
-    # await print(target.history(limit=200))
+
 
 
 
@@ -55,8 +53,7 @@ async def on_message(message):
 
                 print('link already posted')
                 return
-            else:
-                print(post)
+
         
         await target_channel.send(link_message_builder(message))
 
@@ -97,7 +94,7 @@ async def find_new_links(guild):
                         multi_link_split(link, new_links, links_in_correct_channel)
                     else:
                         new_links.add(link_message_builder(message))
-                        
+
     # sending the new links to the target channel
     if new_links:
         for link in new_links:

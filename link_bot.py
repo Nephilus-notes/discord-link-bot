@@ -19,17 +19,7 @@ client = discord.Client(intents=intents)
 async def on_ready():
     guild = discord.utils.get(client.guilds, name=GUILD)
     
-    print(
-        f'{client.user} is connected to the following guild: \n'
-        f'{guild.name} (id: {guild.id})'
-    )
-    print(f'{client.user} has connected to Discord!')
-
-    # channels = '\n - '.join([channel.name for channel in guild.text_channels])
-    # print(f'Guild Channels: \n - {channels}')
-
-    # pattern = r'(https:\/\/www\.|http:\/\/www\.|https:\/\/|http:\/\/)?[a-zA-Z0-9]{2,}(\.[a-zA-Z0-9]{2,})(\.[a-zA-Z0-9]{2,})?'
-    # print(pattern)
+    print(f'{client.user} has connected to the {guild.name} Discord server!')
 
 
 
@@ -40,14 +30,16 @@ async def on_message(message):
         return
         
     pattern = r'(https:\/\/www\.|http:\/\/www\.|https:\/\/|http:\/\/)?[a-zA-Z0-9]{2,}(\.[a-zA-Z0-9]{2,})(\.[a-zA-Z0-9]{2,})?(\/.*){0,}'
-
+    # pattern to match a full url 
     if re.search(pattern, message.content):
         channel_target = discord.utils.get(message.guild.channels, name=CHANNEL)
         if channel_target == message.channel:
+            # if the message is in the channel we want to post to, ignore it
             return
         
         link = re.search(pattern, message.content).group()
         https_follow_up = re.search(r'(?<=https:\/\/)[a-zA-Z0-9]{2,}', message.content).group()
+        # grab the first part of the url so the switch can determine where to grab the name from
   
         name = ''
         match https_follow_up:
@@ -61,7 +53,7 @@ async def on_message(message):
                 print('nothing specific detected')
                 name = re.search(r'(?<=https://)[a-zA-Z0-9]{2,}', message.content).group() # https regex
 
-
+        # post the link with the name of the website to the channel
         await channel_target.send(f'Website: {name.title()}\n{link}')
 
 

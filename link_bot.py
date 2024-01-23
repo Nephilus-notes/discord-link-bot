@@ -30,7 +30,7 @@ async def on_ready():
 
 
 
-
+ # When a new message is posted in the server, check if it's a link, and then repost it in the links channel
 @client.event
 async def on_message(message):
 
@@ -133,14 +133,13 @@ def link_pattern_match(message):
         return False
     
 def multi_link_split(link, new_links_set, links_in_correct_channel, push_boolean=True):
-    if whitespace_check(link):
-        multiple_links = link.split(' ')
-        for link in multiple_links:
-            if link not in links_in_correct_channel:
-                if push_boolean:
-                    new_links_set.add(link_message_builder(link, True))
-                else:
-                    links_in_correct_channel.add(link)
+    multiple_links = link.split(' ')
+    for link in multiple_links:
+        if link not in links_in_correct_channel:
+            if push_boolean:
+                new_links_set.add(link_message_builder(link, True))
+            else:
+                links_in_correct_channel.add(link)
 
 def site_name_extractor(link):
 

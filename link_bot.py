@@ -52,6 +52,8 @@ async def on_message(message):
         
         link = re.search(pattern, message.content).group()
         https_follow_up = re.search(r'(?<=https:\/\/)[a-zA-Z0-9]{2,}', message.content)
+        print(type(https_follow_up))
+        print(https_follow_up)
         name = ''
         match https_follow_up:
             case 'docs':

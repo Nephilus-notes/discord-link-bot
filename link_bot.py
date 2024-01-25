@@ -105,13 +105,10 @@ def set_target_channel(guild, channel):
     return discord.utils.get(guild.channels, name=channel)
 
 def link_message_builder(message, string_boolean=False):
-    if string_boolean:
-        return f'Website: {site_name_extractor(message)} \n {message}'
-    else:
-        link = re.search(LINK_PATTERN, message.content).group()
-        name = site_name_extractor(link)
+    name = site_name_extractor(message) if string_boolean else site_name_extractor(message.content)
+    link = message if string_boolean else re.search(LINK_PATTERN, message.content).group()
 
-        return f'Website: {name.title()} \n {link}'
+    return f'Website: {name.title()} \n {link}'
 
 
 async def delete_awkward_links(guild, channel):
